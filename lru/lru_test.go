@@ -32,7 +32,7 @@ func TestLRU(t *testing.T) {
 		lru.Print()
 	}
 	if lru.left != 3 {
-		t.Fatalf("wrong left is %s", lru.left)
+		t.Fatalf("wrong left is %d", lru.left)
 	}
 	for i := 0; i < len(list); i++ {
 		lru.Set(list[i], list[i])
@@ -40,7 +40,7 @@ func TestLRU(t *testing.T) {
 	}
 
 	if lru.left != 0 {
-		t.Fatalf("wrong left is %s", lru.left)
+		t.Fatalf("wrong left is %d", lru.left)
 	}
 
 }

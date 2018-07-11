@@ -1,5 +1,6 @@
-// Author: catlittlechen@gmail.com
-
+/*
+Package lru .
+*/
 package lru
 
 import (
@@ -8,31 +9,36 @@ import (
 	"sync"
 )
 
+// Tree .
 type Tree interface {
 	Get(string) *Node
 	Set(string, *Node)
 	Del(string) *Node
 }
 
+// DefaultTree map
 type DefaultTree struct {
 	tree map[string]*Node
 }
 
+// Get .
 func (dt *DefaultTree) Get(key string) *Node {
 	return dt.tree[key]
 }
 
+// Set .
 func (dt *DefaultTree) Set(key string, node *Node) {
 	dt.tree[key] = node
-	return
 }
 
+// Del .
 func (dt *DefaultTree) Del(key string) *Node {
 	node := dt.tree[key]
 	delete(dt.tree, key)
 	return node
 }
 
+// Node data node
 type Node struct {
 	pre  *Node
 	next *Node
@@ -41,20 +47,21 @@ type Node struct {
 	value interface{}
 }
 
+// clear .
 func (node *Node) clear() {
 	node.pre = nil
 	node.next = nil
 	node.key = ""
 	node.value = nil
-	return
 }
 
+// init set kv
 func (node *Node) init(k string, v interface{}) {
 	node.key = k
 	node.value = v
-	return
 }
 
+// LRU .
 type LRU struct {
 	l *sync.Mutex
 
@@ -67,6 +74,7 @@ type LRU struct {
 	tree     Tree
 }
 
+// New .
 func New(size int, tree Tree) (*LRU, error) {
 	if size <= 0 {
 		return nil, errors.New("size must be large than 0")
@@ -89,6 +97,7 @@ func New(size int, tree Tree) (*LRU, error) {
 	return lru, nil
 }
 
+// Set .
 func (lru *LRU) Set(key string, obj interface{}) {
 	lru.l.Lock()
 	defer lru.l.Unlock()
@@ -123,10 +132,9 @@ func (lru *LRU) Set(key string, obj interface{}) {
 	node.init(key, obj)
 	lru.tree.Set(key, node)
 	lru.push(node)
-
-	return
 }
 
+// Get .
 func (lru *LRU) Get(key string) (obj interface{}) {
 	lru.l.Lock()
 	defer lru.l.Unlock()
@@ -137,6 +145,7 @@ func (lru *LRU) Get(key string) (obj interface{}) {
 	return node.value
 }
 
+// get .
 func (lru *LRU) get(key string) (node *Node) {
 	node = lru.tree.Get(key)
 	if node == nil {
@@ -147,6 +156,7 @@ func (lru *LRU) get(key string) (node *Node) {
 	return
 }
 
+// pick .
 func (lru *LRU) pick(node *Node) {
 	if node == lru.head {
 		lru.head = node.next
@@ -170,9 +180,9 @@ func (lru *LRU) pick(node *Node) {
 	}
 	node.pre = nil
 	node.next = nil
-	return
 }
 
+// push .
 func (lru *LRU) push(node *Node) {
 	node.next = lru.head
 	if lru.head != nil {
@@ -182,9 +192,9 @@ func (lru *LRU) push(node *Node) {
 	if lru.tail == nil {
 		lru.tail = node
 	}
-	return
 }
 
+// Del .
 func (lru *LRU) Del(key string) (obj interface{}) {
 	lru.l.Lock()
 	defer lru.l.Unlock()
@@ -204,6 +214,7 @@ func (lru *LRU) Del(key string) (obj interface{}) {
 	return
 }
 
+// Print .
 func (lru *LRU) Print() {
 	node := lru.head
 	for node != nil {
